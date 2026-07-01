@@ -584,17 +584,55 @@ document.getElementById('payBtn').addEventListener('click', async () => {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Generating (dev bypass)...';
   try {
-    const data = await api(`/api/payments/dev-skip/${state.projectId}`, {
-      method: 'POST',
-    });
+    await api(`/api/payments/dev-skip/${state.projectId}`, { method: 'POST' });
     toast('Payment bypassed — generating your surprise!', 'success');
-    btn.innerHTML = '✅ Generation started!';
+    pollGenerationStatus(btn);
   } catch (err) {
     toast(err.message, 'error');
     btn.disabled = false;
     btn.innerHTML = '🔒 Proceed to Payment';
   }
 });
+
+const STATUS_LABELS = {
+  writing: '✍️ Writing your content...',
+  processing_media: '🖼️ Processing your photos...',
+  generating_voice: '🎙️ Preparing voice narration...',
+  assembling: '🎬 Assembling your experience...',
+  completed: '✅ Done!',
+  failed: '❌ Generation failed',
+};
+
+async function pollGenerationStatus(btn) {
+  const poll = async () => {
+    try {
+      const data = await api(`/api/projects/${state.projectId}`);
+      const status = data.project.aiGenerated?.generationStatus;
+      btn.innerHTML = STATUS_LABELS[status] || `Working... (${status})`;
+
+      if (status === 'completed') {
+        btn.innerHTML = '🎉 View Your Surprise';
+        btn.disabled = false;
+        btn.onclick = () => window.open(data.project.shareUrl, '_blank');
+        toast('Your surprise is ready!', 'success');
+        return; // stop polling
+      }
+
+      if (status === 'failed') {
+        btn.innerHTML = '🔒 Proceed to Payment';
+        btn.disabled = false;
+        toast(data.project.aiGenerated?.generationError || 'Generation failed', 'error');
+        return; // stop polling
+      }
+
+      setTimeout(poll, 3000); // keep polling every 3s
+    } catch (err) {
+      toast('Lost connection while checking status', 'error');
+      setTimeout(poll, 5000); // retry a bit slower on network error
+    }
+  };
+  poll();
+}
 /*document.getElementById('payBtn').addEventListener('click', async () => {
   if (!state.token) { openAuthModal(); return; }
   const btn = document.getElementById('payBtn');
