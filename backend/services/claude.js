@@ -6,7 +6,7 @@ const axios = require('axios');
 const GEMINI_MODEL = 'gemini-2.5-flash';
 const GEMINI_BASE = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-async function callGemini(parts, maxOutputTokens = 2000, retries = 3) {
+async function callGemini(parts, maxOutputTokens = 2000, retries = 4) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const response = await axios.post(
@@ -27,8 +27,15 @@ async function callGemini(parts, maxOutputTokens = 2000, retries = 3) {
       const isLastAttempt = attempt === retries;
 
       if (isRateLimit && !isLastAttempt) {
-        const waitMs = 5000 * (attempt + 1); // 5s, 10s, 15s...
-        console.log(`Gemini rate limited, retrying in ${waitMs / 1000}s (attempt ${attempt + 1}/${retries})...`);
+        // Try to read Google's own suggested wait time from the error details
+        const details = err.response?.data?.error?.details || [];
+        const retryInfo = details.find((d) => d['@type']?.includes('RetryInfo'));
+        const suggestedSeconds = retryInfo?.retryDelay ? parseFloat(retryInfo.retryDelay) : null;
+
+        // Fall back to growing backoff if Google didn't give us a specific delay
+        const waitMs = suggestedSeconds ? Math.ceil(suggestedSeconds * 1000) + 2000 : 15000 * (attempt + 1);
+
+        console.log(`Gemini rate limited, retrying in ${Math.round(waitMs / 1000)}s (attempt ${attempt + 1}/${retries})...`);
         await new Promise((r) => setTimeout(r, waitMs));
         continue;
       }
