@@ -6,19 +6,35 @@ const axios = require('axios');
 const GEMINI_MODEL = 'gemini-2.5-flash';
 const GEMINI_BASE = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-async function callGemini(parts, maxOutputTokens = 2000) {
-  const response = await axios.post(
-    `${GEMINI_BASE}?key=${process.env.GEMINI_API_KEY}`,
-    {
-      contents: [{ parts }],
-      generationConfig: { maxOutputTokens, temperature: 0.9 },
-    },
-    { headers: { 'Content-Type': 'application/json' }, timeout: 60000 } // 60s timeout instead of hanging forever
-  );
+async function callGemini(parts, maxOutputTokens = 2000, retries = 3) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const response = await axios.post(
+        `${GEMINI_BASE}?key=${process.env.GEMINI_API_KEY}`,
+        {
+          contents: [{ parts }],
+          generationConfig: { maxOutputTokens, temperature: 0.9 },
+        },
+        { headers: { 'Content-Type': 'application/json' }, timeout: 60000 }
+      );
 
-  const candidate = response.data?.candidates?.[0];
-  const text = candidate?.content?.parts?.map((p) => p.text).join('') || '';
-  return text;
+      const candidate = response.data?.candidates?.[0];
+      const text = candidate?.content?.parts?.map((p) => p.text).join('') || '';
+      return text;
+    } catch (err) {
+      const status = err.response?.status;
+      const isRateLimit = status === 429;
+      const isLastAttempt = attempt === retries;
+
+      if (isRateLimit && !isLastAttempt) {
+        const waitMs = 5000 * (attempt + 1); // 5s, 10s, 15s...
+        console.log(`Gemini rate limited, retrying in ${waitMs / 1000}s (attempt ${attempt + 1}/${retries})...`);
+        await new Promise((r) => setTimeout(r, waitMs));
+        continue;
+      }
+      throw err;
+    }
+  }
 }
 
 /**
