@@ -13,7 +13,7 @@ async function callGemini(parts, maxOutputTokens = 2000) {
       contents: [{ parts }],
       generationConfig: { maxOutputTokens, temperature: 0.9 },
     },
-    { headers: { 'Content-Type': 'application/json' } }
+    { headers: { 'Content-Type': 'application/json' }, timeout: 60000 } // 60s timeout instead of hanging forever
   );
 
   const candidate = response.data?.candidates?.[0];
