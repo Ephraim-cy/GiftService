@@ -32,7 +32,7 @@ canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
 nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;background:rgba(13,13,19,.88);backdrop-filter:blur(22px);border-bottom:1px solid rgba(255,45,120,.13)}
 .nav-logo{display:flex;align-items:center;gap:9px;flex-shrink:0}
 .nav-logo-icon{width:34px;height:34px;background:var(--grad);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 14px var(--glow)}
-.nav-logo-text{font-size:18px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.nav-logo-text{font-size:18px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
 .nav-logo-sub{font-size:9px;color:var(--text3);display:block;-webkit-text-fill-color:rgba(255,255,255,.38)}
 .nav-tabs{display:flex;gap:2px;list-style:none}
 .nav-tabs li a{display:block;padding:7px 15px;font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;border-radius:8px;transition:all .2s;cursor:pointer}
@@ -91,7 +91,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:62px;display:flex;al
 #page-templates{flex-direction:column;padding:24px 40px 16px;background:radial-gradient(ellipse at 80% 20%,rgba(155,39,175,.1),transparent 50%)}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-shrink:0}
 .page-title{font-size:26px;font-weight:800}
-.page-title span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.page-title span{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .view-all{color:var(--pink);text-decoration:none;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px}
 .filter-row{display:flex;gap:8px;margin-bottom:20px;flex-shrink:0;flex-wrap:wrap}
 .filter-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text2);padding:6px 16px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Poppins',sans-serif}
@@ -187,7 +187,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:62px;display:flex;al
 .rv-name{font-size:12px;font-weight:700}
 .rv-role{font-size:10px;color:var(--text3)}
 .rv-summary{background:linear-gradient(145deg,rgba(255,45,120,.08),rgba(155,39,175,.08));border:1px solid rgba(255,45,120,.18);border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;grid-column:span 1}
-.rv-big-num{font-size:56px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.rv-big-num{font-size:56px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
 .rv-big-label{font-size:12px;color:var(--text2);margin-top:4px}
 .rv-big-stars{font-size:22px;color:#ffd700;margin:8px 0}
 
@@ -195,7 +195,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:62px;display:flex;al
 #page-faq{flex-direction:row;gap:40px;padding:24px 60px;background:radial-gradient(ellipse at 60% 40%,rgba(255,45,120,.09),transparent 50%)}
 .faq-left{flex:1;max-width:340px;display:flex;flex-direction:column;justify-content:center}
 .faq-left h2{font-size:32px;font-weight:800;line-height:1.2;margin-bottom:14px}
-.faq-left h2 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.faq-left h2 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .faq-left p{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:22px}
 .faq-contact-btn{background:var(--grad);color:#fff;padding:12px 26px;border-radius:100px;font-size:13px;font-weight:700;border:none;cursor:pointer;box-shadow:0 6px 22px var(--glow);font-family:'Poppins',sans-serif;display:inline-block;width:fit-content}
 .faq-right{flex:1;display:flex;flex-direction:column;justify-content:center;gap:0}
@@ -211,7 +211,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:62px;display:flex;al
 #page-contact{flex-direction:row;gap:48px;padding:24px 60px;background:radial-gradient(ellipse at 40% 60%,rgba(155,39,175,.12),transparent 50%)}
 .contact-left{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:400px}
 .contact-left h2{font-size:30px;font-weight:800;line-height:1.2;margin-bottom:14px}
-.contact-left h2 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.contact-left h2 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .contact-left p{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:28px}
 .contact-info{display:flex;flex-direction:column;gap:14px}
 .ci{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text2)}
@@ -307,8 +307,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:62px;display:flex;al
     <li><a href="#" data-page="contact">Contact</a></li>
   </ul>
   <div class="nav-actions">
-    <button class="btn-si">Sign In</button>
-    <button class="btn-gs">Get Started</button>
+    <button class="btn-si" onclick="window.location.href='create.html'">Sign In</button>
+    <button class="btn-gs" onclick="window.location.href='create.html'">Get Started</button>
   </div>
 </nav>
 
