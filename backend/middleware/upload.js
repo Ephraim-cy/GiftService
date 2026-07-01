@@ -4,13 +4,13 @@ const path = require('path');
 const storage = multer.memoryStorage();
 
 const ALLOWED_MIME = [
-  'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+  'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif',
   'video/mp4', 'video/quicktime', 'video/webm',
   'audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/x-m4a',
 ];
 
 const ALLOWED_EXTENSIONS = [
-  '.jpg', '.jpeg', '.png', '.webp', '.gif',
+  '.jpg', '.jpeg', '.png', '.webp', '.gif', '.heic', '.heif',
   '.mp4', '.mov', '.webm',
   '.mp3', '.wav', '.m4a',
 ];
