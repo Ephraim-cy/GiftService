@@ -7,6 +7,25 @@ const { createCheckoutSession, constructWebhookEvent, refundPayment } = require(
 const { generateProject } = require('../services/generator');
 const email = require('../services/email');
 
+// ── DEV ONLY: bypass Stripe, mark project paid, trigger AI pipeline directly ──
+// ⚠️ Remove or disable this before going live for real users.
+router.post('/dev-skip/:projectId', requireAuth, async (req, res) => {
+  try {
+    const project = await Project.findOne({ _id: req.params.projectId, user: req.user._id });
+    if (!project) return res.status(404).json({ error: 'Project not found' });
+
+    project.status = 'paid';
+    await project.save();
+
+    generateProject(project._id).catch((err) => console.error('Dev-skip generation error:', err));
+
+    res.json({ message: 'Payment bypassed, generation started', projectId: project._id });
+  } catch (err) {
+    console.error('Dev-skip error:', err);
+    res.status(500).json({ error: 'Dev-skip failed' });
+  }
+});
+
 const router = express.Router();
 
 // ── CREATE CHECKOUT SESSION ──

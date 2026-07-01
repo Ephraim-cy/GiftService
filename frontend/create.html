@@ -582,9 +582,26 @@ document.getElementById('payBtn').addEventListener('click', async () => {
   if (!state.token) { openAuthModal(); return; }
   const btn = document.getElementById('payBtn');
   btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating (dev bypass)...';
+  try {
+    const data = await api(`/api/payments/dev-skip/${state.projectId}`, {
+      method: 'POST',
+    });
+    toast('Payment bypassed — generating your surprise!', 'success');
+    btn.innerHTML = '✅ Generation started!';
+  } catch (err) {
+    toast(err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '🔒 Proceed to Payment';
+  }
+});
+/*document.getElementById('payBtn').addEventListener('click', async () => {
+  if (!state.token) { openAuthModal(); return; }
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Redirecting to checkout...';
   try {
-    const data = await api('/api/payments/checkout', {
+    const data = await api(`/api/payments/dev-skip/${state.projectId}`, {
       method: 'POST',
       body: JSON.stringify({ projectId: state.projectId }),
     });
@@ -594,7 +611,7 @@ document.getElementById('payBtn').addEventListener('click', async () => {
     btn.disabled = false;
     btn.innerHTML = '🔒 Proceed to Payment';
   }
-});
+});*/
 
 // ── AUTH MODAL ──
 const authModal = document.getElementById('authModal');
