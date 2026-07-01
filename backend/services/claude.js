@@ -3,7 +3,8 @@ const axios = require('axios');
 // Using Google Gemini's free tier instead of Anthropic's paid API.
 // Get a free key (no credit card required) at https://aistudio.google.com/apikey
 // Set GEMINI_API_KEY in your environment variables (Railway).
-const GEMINI_MODEL = 'gemini-2.5-flash';
+// Using flash-lite: separate quota bucket from flash, and higher free-tier request allowance.
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 const GEMINI_BASE = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 async function callGemini(parts, maxOutputTokens = 2000, retries = 4) {
@@ -27,12 +28,9 @@ async function callGemini(parts, maxOutputTokens = 2000, retries = 4) {
       const isLastAttempt = attempt === retries;
 
       if (isRateLimit && !isLastAttempt) {
-        // Try to read Google's own suggested wait time from the error details
         const details = err.response?.data?.error?.details || [];
         const retryInfo = details.find((d) => d['@type']?.includes('RetryInfo'));
         const suggestedSeconds = retryInfo?.retryDelay ? parseFloat(retryInfo.retryDelay) : null;
-
-        // Fall back to growing backoff if Google didn't give us a specific delay
         const waitMs = suggestedSeconds ? Math.ceil(suggestedSeconds * 1000) + 2000 : 15000 * (attempt + 1);
 
         console.log(`Gemini rate limited, retrying in ${Math.round(waitMs / 1000)}s (attempt ${attempt + 1}/${retries})...`);
@@ -46,7 +44,7 @@ async function callGemini(parts, maxOutputTokens = 2000, retries = 4) {
 
 /**
  * Writes the core personalized content (letter, poem, speech, wishes, story chapters)
- * based on the raw input the user provided.
+ * AND recommends a music style — merged into one call to conserve free-tier quota.
  */
 async function writeContent({ occasion, recipientName, senderName, nicknames, relationshipDetails, tone, language, customQuestions }) {
   const prompt = `You are a world-class romantic ghostwriter creating a personalized digital gift experience.
@@ -64,12 +62,14 @@ Write the following, using ONLY the details provided above (do not invent specif
 1. A main written piece (letter/poem/speech/wishes depending on occasion) — 150-300 words
 2. 3-5 short "story chapter" titles and texts (20-40 words each) that could be used in an animated timeline
 3. A short, powerful ending message (1-2 sentences)
+4. ONE recommended music style from this exact list that fits the occasion/tone best: [acoustic-romantic, orchestral-cinematic, piano-ballad, upbeat-pop, gentle-ambient, jazz-warm, choir-emotional, lofi-soft]
 
 Respond ONLY in valid JSON, no preamble, no markdown fences, in this exact shape:
 {
   "writtenContent": "...",
   "storyChapters": [{"title": "...", "text": "..."}],
-  "endingMessage": "..."
+  "endingMessage": "...",
+  "recommendedMusicStyle": "..."
 }`;
 
   const text = await callGemini([{ text: prompt }], 2000);
@@ -112,16 +112,6 @@ async function selectBestPhotos(photos) {
 }
 
 /**
- * Recommends a music style/mood based on occasion + tone (used to pick from a curated library).
- */
-async function recommendMusic({ occasion, tone }) {
-  const prompt = `For a digital gift experience with occasion "${occasion}" and tone "${tone}", recommend ONE music style from this list that fits best: [acoustic-romantic, orchestral-cinematic, piano-ballad, upbeat-pop, gentle-ambient, jazz-warm, choir-emotional, lofi-soft]. Respond with ONLY the single style name, nothing else, no punctuation.`;
-
-  const text = await callGemini([{ text: prompt }], 20);
-  return (text || 'gentle-ambient').trim();
-}
-
-/**
  * Generates the final cinematic experience as a self-contained HTML string,
  * using the template's layoutConfig as a structural guide and the AI-written content + media.
  */
@@ -157,4 +147,4 @@ Respond ONLY with the raw HTML, starting with <!DOCTYPE html> and nothing else b
   return text.replace(/```html|```/g, '').trim();
 }
 
-module.exports = { writeContent, selectBestPhotos, recommendMusic, buildExperienceHtml };
+module.exports = { writeContent, selectBestPhotos, buildExperienceHtml };

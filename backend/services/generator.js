@@ -31,10 +31,11 @@ async function generateProject(projectId) {
       customQuestions: project.rawInput.customQuestions,
     });
 
-    project.aiGenerated.writtenContent = written.writtenContent;
-    project.aiGenerated.storyChapters = written.storyChapters;
-    project.aiGenerated.endingMessage = written.endingMessage;
-    await project.save();
+   project.aiGenerated.writtenContent = written.writtenContent;
+project.aiGenerated.storyChapters = written.storyChapters;
+project.aiGenerated.endingMessage = written.endingMessage;
+project.aiGenerated.recommendedMusicStyle = written.recommendedMusicStyle;
+await project.save();
 
     // ── STAGE 2: Process media (enhance, restore, select best photos) ──
     project.aiGenerated.generationStatus = 'processing_media';
