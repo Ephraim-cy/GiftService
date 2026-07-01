@@ -90,7 +90,7 @@ await project.save();
 
     return project;
   } catch (err) {
-    console.error(`Generation failed for project ${projectId}:`, err);
+  console.error(`Generation failed for project ${projectId}:`, err.response?.data || err.message);
     project.aiGenerated.generationStatus = 'failed';
     project.aiGenerated.generationError = err.message;
     await project.save();
