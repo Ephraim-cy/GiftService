@@ -64,22 +64,12 @@ async function generateProject(projectId) {
     project.aiGenerated.selectedPhotos = await claude.selectBestPhotos(photoPayloads);
     await project.save();
 
-    // ── STAGE 3: Voice narration ──
-    project.aiGenerated.generationStatus = 'generating_voice';
-    await project.save();
-
-    if (project.aiGenerated.writtenContent) {
-      const audioBuffer = await elevenlabs.generateNarration(project.aiGenerated.writtenContent);
-      const uploadResult = await uploadBuffer(audioBuffer, `giftservice/projects/${project._id}/audio`, 'video');
-      project.aiGenerated.voiceNarrationUrl = uploadResult.secure_url;
-    }
-
-    project.aiGenerated.recommendedMusicStyle = await claude.recommendMusic({
-      occasion: project.rawInput.occasion,
-      tone: project.rawInput.tone,
-    });
-    await project.save();
-
+   // ── STAGE 3: Voice narration ──
+// Temporarily disabled — ElevenLabs free tier forbids commercial use of the audio.
+// Re-enable once you have a paid ElevenLabs plan or a self-hosted TTS alternative.
+project.aiGenerated.generationStatus = 'generating_voice';
+await project.save();
+// (skipped for now — project.aiGenerated.voiceNarrationUrl stays unset)
     // ── STAGE 4: Assemble final cinematic HTML experience ──
     project.aiGenerated.generationStatus = 'assembling';
     await project.save();

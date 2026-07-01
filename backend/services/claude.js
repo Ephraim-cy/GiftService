@@ -1,7 +1,25 @@
-const Anthropic = require('@anthropic-ai/sdk');
+const axios = require('axios');
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const MODEL = 'claude-sonnet-4-6';
+// Using Google Gemini's free tier instead of Anthropic's paid API.
+// Get a free key (no credit card required) at https://aistudio.google.com/apikey
+// Set GEMINI_API_KEY in your environment variables (Railway).
+const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_BASE = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+async function callGemini(parts, maxOutputTokens = 2000) {
+  const response = await axios.post(
+    `${GEMINI_BASE}?key=${process.env.GEMINI_API_KEY}`,
+    {
+      contents: [{ parts }],
+      generationConfig: { maxOutputTokens, temperature: 0.9 },
+    },
+    { headers: { 'Content-Type': 'application/json' } }
+  );
+
+  const candidate = response.data?.candidates?.[0];
+  const text = candidate?.content?.parts?.map((p) => p.text).join('') || '';
+  return text;
+}
 
 /**
  * Writes the core personalized content (letter, poem, speech, wishes, story chapters)
@@ -24,55 +42,41 @@ Write the following, using ONLY the details provided above (do not invent specif
 2. 3-5 short "story chapter" titles and texts (20-40 words each) that could be used in an animated timeline
 3. A short, powerful ending message (1-2 sentences)
 
-Respond ONLY in valid JSON, no preamble, in this exact shape:
+Respond ONLY in valid JSON, no preamble, no markdown fences, in this exact shape:
 {
   "writtenContent": "...",
   "storyChapters": [{"title": "...", "text": "..."}],
   "endingMessage": "..."
 }`;
 
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 2000,
-    messages: [{ role: 'user', content: prompt }],
-  });
-
-  const text = response.content.find((b) => b.type === 'text')?.text || '{}';
+  const text = await callGemini([{ text: prompt }], 2000);
   const cleaned = text.replace(/```json|```/g, '').trim();
 
   try {
     return JSON.parse(cleaned);
   } catch (err) {
-    console.error('Failed to parse Claude content response:', cleaned);
+    console.error('Failed to parse Gemini content response:', cleaned);
     throw new Error('AI content generation returned invalid format');
   }
 }
 
 /**
- * Uses Claude Vision to look at uploaded photos and pick the best ones / order them
+ * Uses Gemini Vision to look at uploaded photos and pick the best ones / order them
  * for a slideshow. Expects an array of { url, base64, mediaType } for up to ~10 photos.
  */
 async function selectBestPhotos(photos) {
   if (!photos.length) return [];
 
-  const content = [
+  const parts = [
     {
-      type: 'text',
-      text: `You are selecting and ordering the best photos for a romantic slideshow. Here are ${photos.length} candidate photos. Return ONLY a JSON array of indices (0-based) in the best display order, prioritizing photo quality, emotional warmth, and clarity. Exclude blurry or low-quality ones if there are better alternatives. Respond ONLY with the JSON array, e.g. [2,0,4,1].`,
+      text: `You are selecting and ordering the best photos for a romantic slideshow. Here are ${photos.length} candidate photos (in order, index 0 first). Return ONLY a JSON array of indices (0-based) in the best display order, prioritizing photo quality, emotional warmth, and clarity. Exclude blurry or low-quality ones if there are better alternatives. Respond ONLY with the JSON array, e.g. [2,0,4,1]. No markdown fences.`,
     },
     ...photos.map((p) => ({
-      type: 'image',
-      source: { type: 'base64', media_type: p.mediaType, data: p.base64 },
+      inline_data: { mime_type: p.mediaType, data: p.base64 },
     })),
   ];
 
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 200,
-    messages: [{ role: 'user', content }],
-  });
-
-  const text = response.content.find((b) => b.type === 'text')?.text || '[]';
+  const text = await callGemini(parts, 200);
   const cleaned = text.replace(/```json|```/g, '').trim();
 
   try {
@@ -88,15 +92,10 @@ async function selectBestPhotos(photos) {
  * Recommends a music style/mood based on occasion + tone (used to pick from a curated library).
  */
 async function recommendMusic({ occasion, tone }) {
-  const prompt = `For a digital gift experience with occasion "${occasion}" and tone "${tone}", recommend ONE music style from this list that fits best: [acoustic-romantic, orchestral-cinematic, piano-ballad, upbeat-pop, gentle-ambient, jazz-warm, choir-emotional, lofi-soft]. Respond with ONLY the single style name, nothing else.`;
+  const prompt = `For a digital gift experience with occasion "${occasion}" and tone "${tone}", recommend ONE music style from this list that fits best: [acoustic-romantic, orchestral-cinematic, piano-ballad, upbeat-pop, gentle-ambient, jazz-warm, choir-emotional, lofi-soft]. Respond with ONLY the single style name, nothing else, no punctuation.`;
 
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 20,
-    messages: [{ role: 'user', content: prompt }],
-  });
-
-  return (response.content.find((b) => b.type === 'text')?.text || 'gentle-ambient').trim();
+  const text = await callGemini([{ text: prompt }], 20);
+  return (text || 'gentle-ambient').trim();
 }
 
 /**
@@ -129,16 +128,10 @@ Build a complete, single HTML file (inline CSS + JS, no external dependencies ex
 - A final celebration screen with the ending message
 - Fully responsive, mobile-first
 
-Respond ONLY with the raw HTML, starting with <!DOCTYPE html> and nothing else before or after.`;
+Respond ONLY with the raw HTML, starting with <!DOCTYPE html> and nothing else before or after. No markdown fences.`;
 
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 16000,
-    messages: [{ role: 'user', content: prompt }],
-  });
-
-  const html = response.content.find((b) => b.type === 'text')?.text || '';
-  return html.replace(/```html|```/g, '').trim();
+  const text = await callGemini([{ text: prompt }], 16000);
+  return text.replace(/```html|```/g, '').trim();
 }
 
 module.exports = { writeContent, selectBestPhotos, recommendMusic, buildExperienceHtml };
