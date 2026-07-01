@@ -58,6 +58,10 @@ app.use((req, res) => {
 // ── GLOBAL ERROR HANDLER ──
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
+  // Multer file-filter/size errors are client mistakes, not server crashes — use 400 instead of 500
+  if (err.message?.startsWith('Unsupported file type') || err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ error: err.message });
+  }
   res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
