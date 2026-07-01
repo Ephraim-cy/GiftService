@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GiftService – Create. Express. Impress.</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d13;
+  --card:#1a1a2e;
+  --pink:#ff2d78;
+  --pink2:#ff6b9d;
+  --purple:#9b27af;
+  --purple2:#c850c0;
+  --glow:rgba(255,45,120,0.35);
+  --text:#ffffff;
+  --text2:rgba(255,255,255,0.68);
+  --text3:rgba(255,255,255,0.38);
+  --border:rgba(255,45,120,0.18);
+  --grad:linear-gradient(135deg,#ff2d78,#c850c0);
+  --grad2:linear-gradient(135deg,#9b27af,#ff2d78);
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Poppins',sans-serif}
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.hearts-wrap{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.fh{position:absolute;font-size:14px;opacity:0;animation:fhA linear infinite}
+@keyframes fhA{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:.5}90%{opacity:.2}100%{transform:translateY(-80px) scale(1);opacity:0}}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;background:rgba(13,13,19,.88);backdrop-filter:blur(22px);border-bottom:1px solid rgba(255,45,120,.13)}
+.nav-logo{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.nav-logo-icon{width:34px;height:34px;background:var(--grad);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 14px var(--glow)}
+.nav-logo-text{font-size:18px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.nav-logo-sub{font-size:9px;color:var(--text3);display:block;-webkit-text-fill-color:rgba(255,255,255,.38)}
+.nav-tabs{display:flex;gap:2px;list-style:none}
+.nav-tabs li a{display:block;padding:7px 15px;font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;border-radius:8px;transition:all .2s;cursor:pointer}
+.nav-tabs li a:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nav-tabs li a.active{color:var(--pink);background:rgba(255,45,120,.1)}
+.nav-actions{display:flex;gap:10px;flex-shrink:0}
+.btn-si{background:transparent;border:1px solid rgba(255,255,255,.18);color:#fff;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Poppins',sans-serif;transition:all .2s}
+.btn-si:hover{border-color:var(--pink);color:var(--pink)}
+.btn-gs{background:var(--grad);border:none;color:#fff;padding:8px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;box-shadow:0 4px 18px var(--glow);transition:all .2s}
+.btn-gs:hover{transform:translateY(-1px);box-shadow:0 8px 28px var(--glow)}
+
+/* ── PAGES ── */
+.page{position:fixed;inset:0;top:62px;z-index:2;display:none;overflow:hidden}
+.page.active{display:flex}
+
+/* ══════════ HOME PAGE ══════════ */
+#page-home{flex-direction:row;align-items:center;justify-content:center;gap:48px;padding:0 60px;background:radial-gradient(ellipse at 25% 60%,rgba(155,39,175,.14) 0%,transparent 55%),radial-gradient(ellipse at 75% 30%,rgba(255,45,120,.11) 0%,transparent 55%)}
+.home-left{flex:1;max-width:520px}
+.home-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,45,120,.1);border:1px solid rgba(255,45,120,.28);padding:5px 15px;border-radius:100px;font-size:11px;font-weight:600;color:var(--pink2);margin-bottom:22px}
+.home-title{font-size:clamp(30px,3.4vw,52px);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:16px}
+.home-title .pk{color:var(--pink);text-shadow:0 0 28px var(--glow)}
+.home-sub{font-size:14px;color:var(--text2);max-width:420px;margin-bottom:28px;line-height:1.7}
+.home-btns{display:flex;gap:14px;margin-bottom:26px}
+.btn-main{background:var(--grad);color:#fff;padding:13px 30px;border-radius:100px;font-size:14px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:7px;box-shadow:0 8px 28px var(--glow);transition:all .25s;border:none;cursor:pointer;font-family:'Poppins',sans-serif}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 14px 40px var(--glow)}
+.btn-demo{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:#fff;padding:13px 26px;border-radius:100px;font-size:14px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:all .2s;cursor:pointer;font-family:'Poppins',sans-serif}
+.btn-demo:hover{background:rgba(255,255,255,.12)}
+.home-trust{display:flex;gap:22px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text3)}
+.home-right{flex:1;max-width:500px;display:flex;align-items:center;justify-content:center;position:relative}
+.laptop{width:100%;background:linear-gradient(145deg,#1e1e3a,#2d1b4e);border-radius:18px;padding:14px;border:1px solid rgba(255,45,120,.28);box-shadow:0 28px 70px rgba(0,0,0,.6),0 0 50px rgba(155,39,175,.18)}
+.screen{background:linear-gradient(135deg,#1a0a2e,#2d0050);border-radius:12px;padding:32px 24px;text-align:center;min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.screen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,45,120,.18),transparent 65%)}
+.s-hearts{position:absolute;inset:0;pointer-events:none}
+.sh{position:absolute;animation:floatH 3s ease-in-out infinite}
+.sh:nth-child(1){left:8%;top:70%;font-size:18px;animation-delay:0s}
+.sh:nth-child(2){left:82%;top:60%;font-size:14px;animation-delay:1s}
+.sh:nth-child(3){left:48%;top:80%;font-size:16px;animation-delay:2s}
+.sh:nth-child(4){left:25%;top:50%;font-size:12px;animation-delay:.5s}
+@keyframes floatH{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-18px) scale(1.15)}}
+.s-tag{font-size:13px;color:var(--pink2);margin-bottom:6px;position:relative;z-index:1}
+.s-script{font-family:'Dancing Script',cursive;font-size:32px;color:#fff;line-height:1.25;text-shadow:0 0 28px var(--glow);position:relative;z-index:1}
+.s-btn{margin-top:18px;background:var(--grad);color:#fff;padding:9px 24px;border-radius:100px;font-size:12px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 18px var(--glow);position:relative;z-index:1;font-family:'Poppins',sans-serif}
+.play-wrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.play-btn{width:52px;height:52px;background:rgba(255,45,120,.88);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 0 0 12px rgba(255,45,120,.13),0 6px 28px var(--glow);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 12px rgba(255,45,120,.13),0 6px 28px var(--glow)}50%{box-shadow:0 0 0 22px rgba(255,45,120,.04),0 6px 28px var(--glow)}}
+.phone{position:absolute;right:-55px;bottom:-16px;width:110px;background:linear-gradient(145deg,#1e1e3a,#2d1b4e);border-radius:14px;padding:7px;border:1px solid rgba(255,45,120,.28);box-shadow:0 14px 36px rgba(0,0,0,.5)}
+.phone-inner{background:#0d0d1a;border-radius:9px;padding:7px;min-height:150px}
+.phone-img{width:100%;height:54px;background:linear-gradient(135deg,#2d0050,#4a0080);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:5px}
+.phone-t1{font-size:7px;color:var(--text2);text-align:center}
+.phone-t2{font-size:8px;font-weight:700;color:var(--pink2);text-align:center;margin:3px 0}
+.phone-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:5px}
+.phone-cell{height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px}
+
+/* ══════════ TEMPLATES PAGE ══════════ */
+#page-templates{flex-direction:column;padding:24px 40px 16px;background:radial-gradient(ellipse at 80% 20%,rgba(155,39,175,.1),transparent 50%)}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-shrink:0}
+.page-title{font-size:26px;font-weight:800}
+.page-title span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.view-all{color:var(--pink);text-decoration:none;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px}
+.filter-row{display:flex;gap:8px;margin-bottom:20px;flex-shrink:0;flex-wrap:wrap}
+.filter-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text2);padding:6px 16px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Poppins',sans-serif}
+.filter-btn:hover,.filter-btn.active{background:rgba(255,45,120,.14);border-color:rgba(255,45,120,.38);color:#fff}
+.tpl-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;flex:1;align-content:start}
+.tc{background:var(--card);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .28s;border:1px solid rgba(255,255,255,.06)}
+.tc:hover{transform:translateY(-5px);box-shadow:0 18px 45px rgba(0,0,0,.5),0 0 26px rgba(255,45,120,.14);border-color:rgba(255,45,120,.28)}
+.tc-thumb{height:130px;position:relative;display:flex;align-items:center;justify-content:center;font-size:36px}
+.tc-b1{background:linear-gradient(135deg,#1a0533,#4a0c6e)}
+.tc-b2{background:linear-gradient(135deg,#0d1a0d,#1a3a1a)}
+.tc-b3{background:linear-gradient(135deg,#1a0a00,#3d1f00)}
+.tc-b4{background:linear-gradient(135deg,#00101a,#001f3d)}
+.tc-b5{background:linear-gradient(135deg,#1a0a1a,#3d003d)}
+.tc-b6{background:linear-gradient(135deg,#0d0d0d,#1a1a2e)}
+.tc-b7{background:linear-gradient(135deg,#1a1000,#3d2800)}
+.tc-b8{background:linear-gradient(135deg,#001a1a,#003d3d)}
+.tc-b9{background:linear-gradient(135deg,#0d001a,#200040)}
+.tc-b10{background:linear-gradient(135deg,#1a0010,#3d0028)}
+.tc-b11{background:linear-gradient(135deg,#001a0d,#003d20)}
+.tc-b12{background:linear-gradient(135deg,#0d0d00,#2a2a00)}
+.tbadge{position:absolute;top:8px;left:8px;padding:2px 8px;border-radius:100px;font-size:9px;font-weight:700;text-transform:uppercase}
+.bp{background:#ff2d78;color:#fff}.bb{background:#ff9900;color:#000}.bn{background:#00c853;color:#fff}
+.tplay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;background:rgba(0,0,0,.38);transition:opacity .2s}
+.tplay-btn{width:34px;height:34px;background:var(--grad);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}
+.tc:hover .tplay{opacity:1}
+.tc-info{padding:11px}
+.tc-name{font-size:12px;font-weight:700;margin-bottom:5px}
+.tc-meta{display:flex;justify-content:space-between;align-items:center}
+.tc-stars{font-size:10px;color:#ffd700}
+.tc-rev{font-size:9px;color:var(--text3);margin-left:3px}
+.tc-price{font-size:13px;font-weight:700;color:var(--pink)}
+
+/* ══════════ OCCASIONS PAGE ══════════ */
+#page-occasions{flex-direction:column;padding:24px 40px 16px;background:radial-gradient(ellipse at 20% 80%,rgba(255,45,120,.1),transparent 50%)}
+.occ-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:14px;flex:1;align-content:center}
+.occ{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px 10px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.occ::before{content:'';position:absolute;inset:0;background:var(--grad);opacity:0;transition:opacity .25s}
+.occ:hover::before,.occ.active::before{opacity:.11}
+.occ:hover,.occ.active{border-color:rgba(255,45,120,.38);transform:translateY(-4px);box-shadow:0 10px 28px rgba(255,45,120,.14)}
+.occ-icon{font-size:28px;margin-bottom:10px;display:block;position:relative;z-index:1}
+.occ-name{font-size:11px;font-weight:600;color:var(--text2);position:relative;z-index:1;line-height:1.3}
+
+/* ══════════ PRICING PAGE ══════════ */
+#page-pricing{flex-direction:column;padding:24px 40px 16px;background:radial-gradient(ellipse at 50% 0%,rgba(155,39,175,.12),transparent 50%)}
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;flex:1;align-content:center}
+.pc{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:28px 22px;position:relative;transition:transform .3s}
+.pc:hover{transform:translateY(-4px)}
+.pc.featured{border-color:var(--pink);background:linear-gradient(145deg,#1e0a2e,#2d0050);box-shadow:0 0 0 1px var(--pink),0 20px 50px rgba(255,45,120,.18)}
+.mp-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--grad);color:#fff;padding:3px 16px;border-radius:100px;font-size:10px;font-weight:700;white-space:nowrap}
+.pc-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.pc-price-row{display:flex;align-items:baseline;gap:3px;margin-bottom:3px}
+.pc-price{font-size:36px;font-weight:800}
+.pc-per{font-size:12px;color:var(--text3)}
+.pc-desc{font-size:11px;color:var(--text3);margin-bottom:18px}
+.pc-features{list-style:none;margin-bottom:22px}
+.pc-features li{font-size:12px;color:var(--text2);padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:8px}
+.pc-features li::before{content:'✓';color:var(--pink);font-weight:700;font-size:12px;flex-shrink:0}
+.pc-btn{width:100%;padding:12px;border-radius:100px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Poppins',sans-serif;border:none}
+.pc-btn-o{background:transparent;border:2px solid rgba(255,255,255,.18);color:#fff}
+.pc-btn-o:hover{border-color:var(--pink);color:var(--pink)}
+.pc-btn-f{background:var(--grad);color:#fff;box-shadow:0 6px 22px var(--glow)}
+.pc-btn-f:hover{transform:translateY(-1px);box-shadow:0 10px 30px var(--glow)}
+.gift-pc{background:linear-gradient(145deg,#1a0a2e,#2d0050);border:1px solid rgba(255,45,120,.28);border-radius:18px;padding:28px 22px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gift-pc-icon{font-size:56px;margin-bottom:14px}
+.gift-pc-title{font-size:17px;font-weight:700;margin-bottom:9px}
+.gift-pc-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:20px}
+.gift-pc-btn{background:var(--grad);color:#fff;padding:11px 24px;border-radius:100px;font-size:13px;font-weight:700;border:none;cursor:pointer;box-shadow:0 6px 22px var(--glow);font-family:'Poppins',sans-serif}
+
+/* ══════════ GALLERY PAGE ══════════ */
+#page-gallery{flex-direction:column;padding:24px 40px 16px;background:radial-gradient(ellipse at 70% 70%,rgba(255,45,120,.1),transparent 50%)}
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:16px;flex:1}
+.gallery-item{border-radius:14px;overflow:hidden;cursor:pointer;position:relative;border:1px solid rgba(255,255,255,.06);transition:all .3s;display:flex;align-items:center;justify-content:center;font-size:48px}
+.gallery-item:hover{transform:scale(1.02);box-shadow:0 16px 40px rgba(0,0,0,.5),0 0 24px rgba(255,45,120,.2);border-color:rgba(255,45,120,.3)}
+.gallery-item.big{grid-column:span 2;grid-row:span 2}
+.gi1{background:linear-gradient(135deg,#2d0050,#6a0080)}
+.gi2{background:linear-gradient(135deg,#001a4d,#003080)}
+.gi3{background:linear-gradient(135deg,#1a0020,#400050)}
+.gi4{background:linear-gradient(135deg,#001a10,#003020)}
+.gi5{background:linear-gradient(135deg,#1a0000,#3d0800)}
+.gallery-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);display:flex;align-items:flex-end;padding:16px;opacity:0;transition:opacity .2s}
+.gallery-item:hover .gallery-overlay{opacity:1}
+.gallery-label{font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
+
+/* ══════════ REVIEWS PAGE ══════════ */
+#page-reviews{flex-direction:column;padding:24px 40px 16px;background:radial-gradient(ellipse at 30% 50%,rgba(155,39,175,.1),transparent 50%)}
+.reviews-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;flex:1;align-content:start}
+.rv{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px;transition:all .3s}
+.rv:hover{border-color:rgba(255,45,120,.22);transform:translateY(-3px)}
+.rv-stars{color:#ffd700;font-size:13px;margin-bottom:12px}
+.rv-quote{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:15px;font-style:italic}
+.rv-author{display:flex;align-items:center;gap:10px}
+.rv-av{width:34px;height:34px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.rv-name{font-size:12px;font-weight:700}
+.rv-role{font-size:10px;color:var(--text3)}
+.rv-summary{background:linear-gradient(145deg,rgba(255,45,120,.08),rgba(155,39,175,.08));border:1px solid rgba(255,45,120,.18);border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;grid-column:span 1}
+.rv-big-num{font-size:56px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.rv-big-label{font-size:12px;color:var(--text2);margin-top:4px}
+.rv-big-stars{font-size:22px;color:#ffd700;margin:8px 0}
+
+/* ══════════ FAQ PAGE ══════════ */
+#page-faq{flex-direction:row;gap:40px;padding:24px 60px;background:radial-gradient(ellipse at 60% 40%,rgba(255,45,120,.09),transparent 50%)}
+.faq-left{flex:1;max-width:340px;display:flex;flex-direction:column;justify-content:center}
+.faq-left h2{font-size:32px;font-weight:800;line-height:1.2;margin-bottom:14px}
+.faq-left h2 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.faq-left p{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:22px}
+.faq-contact-btn{background:var(--grad);color:#fff;padding:12px 26px;border-radius:100px;font-size:13px;font-weight:700;border:none;cursor:pointer;box-shadow:0 6px 22px var(--glow);font-family:'Poppins',sans-serif;display:inline-block;width:fit-content}
+.faq-right{flex:1;display:flex;flex-direction:column;justify-content:center;gap:0}
+.faq-item{border-bottom:1px solid rgba(255,255,255,.07)}
+.faq-q{width:100%;background:none;border:none;color:#fff;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;text-align:left;padding:18px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:14px;transition:color .2s}
+.faq-q:hover{color:var(--pink2)}
+.faq-icon{font-size:18px;color:var(--pink);flex-shrink:0;transition:transform .3s;display:inline-block}
+.faq-a{font-size:13px;color:var(--text2);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .3s}
+.faq-item.open .faq-a{max-height:160px;padding-bottom:16px}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+
+/* ══════════ CONTACT PAGE ══════════ */
+#page-contact{flex-direction:row;gap:48px;padding:24px 60px;background:radial-gradient(ellipse at 40% 60%,rgba(155,39,175,.12),transparent 50%)}
+.contact-left{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:400px}
+.contact-left h2{font-size:30px;font-weight:800;line-height:1.2;margin-bottom:14px}
+.contact-left h2 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.contact-left p{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:28px}
+.contact-info{display:flex;flex-direction:column;gap:14px}
+.ci{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text2)}
+.ci-icon{width:36px;height:36px;background:rgba(255,45,120,.12);border:1px solid rgba(255,45,120,.2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.contact-right{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:440px}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+
+/* ══════════ RESPONSIVE / MOBILE ══════════ */
+@media(max-width:900px){
+  nav{padding:0 16px;flex-wrap:wrap;height:auto;min-height:62px}
+  .nav-tabs{order:3;width:100%;overflow-x:auto;padding:8px 0 4px;gap:4px;-webkit-overflow-scrolling:touch}
+  .nav-tabs li a{padding:6px 12px;white-space:nowrap;font-size:12px}
+  .nav-actions{gap:6px}
+  .btn-si,.btn-gs{padding:7px 14px;font-size:12px}
+
+  .page{position:relative;top:0;height:auto;min-height:calc(100vh - 110px);overflow-y:auto;padding-bottom:32px}
+
+  #page-home{flex-direction:column;padding:24px 20px;text-align:center;gap:28px}
+  .home-left{max-width:100%}
+  .home-btns{justify-content:center;flex-wrap:wrap}
+  .home-trust{justify-content:center}
+  .home-right{max-width:100%}
+  .laptop{max-width:340px;margin:0 auto}
+  .phone{display:none}
+
+  #page-templates,#page-occasions,#page-pricing,#page-gallery,#page-reviews{padding:20px 16px}
+  .page-header{flex-direction:column;align-items:flex-start;gap:8px}
+
+  .tpl-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .tc-thumb{height:110px;font-size:28px}
+  .tc-name{font-size:12px}
+  .tc-price{font-size:12px}
+
+  .occ-grid{grid-template-columns:repeat(3,1fr);gap:10px}
+  .occ{padding:16px 6px}
+  .occ-icon{font-size:22px;margin-bottom:6px}
+  .occ-name{font-size:10px}
+
+  .pricing-grid{grid-template-columns:1fr;gap:16px}
+
+  .gallery-grid{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,140px)}
+  .gallery-item.big{grid-column:span 2;grid-row:span 1}
+
+  .reviews-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .rv-summary{grid-column:1/-1}
+
+  #page-faq,#page-contact{flex-direction:column;padding:24px 20px;gap:24px}
+  .faq-left,.contact-left{max-width:100%}
+  .contact-right{max-width:100%}
+  .cf-row{grid-template-columns:1fr}
+}
+
+@media(max-width:480px){
+  .tpl-grid{grid-template-columns:1fr 1fr}
+  .occ-grid{grid-template-columns:repeat(2,1fr)}
+  .reviews-grid{grid-template-columns:1fr}
+  .home-title{font-size:32px}
+}
+.cf-input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;outline:none;font-family:'Poppins',sans-serif;transition:border .2s;width:100%}
+.cf-input::placeholder{color:var(--text3)}
+.cf-input:focus{border-color:var(--pink)}
+.cf-textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;outline:none;font-family:'Poppins',sans-serif;resize:none;margin-bottom:14px;transition:border .2s}
+.cf-textarea:focus{border-color:var(--pink)}
+.cf-submit{background:var(--grad);color:#fff;padding:13px;border-radius:100px;font-size:14px;font-weight:700;border:none;cursor:pointer;width:100%;box-shadow:0 6px 22px var(--glow);font-family:'Poppins',sans-serif;transition:all .2s}
+.cf-submit:hover{transform:translateY(-1px);box-shadow:0 10px 30px var(--glow)}
+
+/* ══════════ GLOW DOTS ══════════ */
+.gdot{width:6px;height:6px;border-radius:50%;background:var(--pink);box-shadow:0 0 8px var(--pink);display:inline-block}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div class="hearts-wrap" id="hw"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">🎁</div>
+    <div>
+      <span class="nav-logo-text">GiftService</span>
+      <span class="nav-logo-sub">Create. Express. Impress.</span>
+    </div>
+  </div>
+  <ul class="nav-tabs">
+    <li><a href="#" class="active" data-page="home">Home</a></li>
+    <li><a href="#" data-page="templates">Templates</a></li>
+    <li><a href="#" data-page="occasions">Occasions</a></li>
+    <li><a href="#" data-page="pricing">Pricing</a></li>
+    <li><a href="#" data-page="gallery">Gallery</a></li>
+    <li><a href="#" data-page="reviews">Reviews</a></li>
+    <li><a href="#" data-page="faq">FAQ</a></li>
+    <li><a href="#" data-page="contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-si">Sign In</button>
+    <button class="btn-gs">Get Started</button>
+  </div>
+</nav>
+
+<!-- ══ HOME ══ -->
+<div class="page active" id="page-home">
+  <div class="home-left">
+    <div class="home-badge">👑 #1 Digital Surprise Platform</div>
+    <h1 class="home-title">
+      Create an Unforgettable<br>
+      Digital Surprise for<br>
+      Someone You <span class="pk">Love ❤️</span>
+    </h1>
+    <p class="home-sub">Build beautiful, personalized love stories, proposals, birthdays, anniversaries and more in just a few minutes.</p>
+    <div class="home-btns">
+      <button class="btn-main" onclick="showPage('templates')">✨ Create My Surprise</button>
+      <button class="btn-demo">▶ Watch Demo</button>
+    </div>
+    <div class="home-trust">
+      <div class="trust-item"><span>🛡</span> 48H Link Expiration</div>
+      <div class="trust-item"><span>🔒</span> 100% Secure</div>
+      <div class="trust-item"><span>⚡</span> Instant Delivery</div>
+    </div>
+  </div>
+  <div class="home-right">
+    <div class="laptop">
+      <div class="screen">
+        <div class="s-hearts">
+          <div class="sh">💕</div><div class="sh">💖</div><div class="sh">✨</div><div class="sh">🌸</div>
+        </div>
+        <div class="s-tag">You are</div>
+        <div class="s-script">My Today<br>and all of my<br>Tomorrows</div>
+        <button class="s-btn">Start Our Story</button>
+      </div>
+      <div class="play-wrap"><div class="play-btn">▶</div></div>
+      <div class="phone">
+        <div class="phone-inner">
+          <div class="phone-img">💑</div>
+          <div class="phone-t1">Every moment with you is special 💕</div>
+          <div class="phone-t2">Our Memories</div>
+          <div class="phone-grid">
+            <div class="phone-cell" style="background:linear-gradient(135deg,#2d0050,#4a0080)">🌹</div>
+            <div class="phone-cell" style="background:linear-gradient(135deg,#0d2d50,#004080)">🌊</div>
+            <div class="phone-cell" style="background:linear-gradient(135deg,#2d1a00,#4d3000)">🌅</div>
+            <div class="phone-cell" style="background:linear-gradient(135deg,#0d2d0d,#004000)">🌿</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TEMPLATES ══ -->
+<div class="page" id="page-templates">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Trending <span>Templates</span></h2>
+      <p style="font-size:13px;color:var(--text3);margin-top:4px">Pick the perfect template for your occasion</p>
+    </div>
+    <a href="#" class="view-all">View All →</a>
+  </div>
+  <div class="filter-row">
+    <button class="filter-btn active">All</button>
+    <button class="filter-btn">Romantic</button>
+    <button class="filter-btn">Proposal</button>
+    <button class="filter-btn">Birthday</button>
+    <button class="filter-btn">Anniversary</button>
+    <button class="filter-btn">Luxury</button>
+    <button class="filter-btn">Minimal</button>
+    <button class="filter-btn">Fantasy</button>
+  </div>
+  <div class="tpl-grid">
+    <div class="tc"><div class="tc-thumb tc-b1">👫<div class="tbadge bp">POPULAR</div><div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Romantic Love Story</div><div class="tc-meta"><div><span class="tc-stars">★★★★★</span><span class="tc-rev">(1.2k)</span></div><div class="tc-price">$29.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b2">💍<div class="tbadge bb">BEST SELLER</div><div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Marry Me Proposal</div><div class="tc-meta"><div><span class="tc-stars">★★★★★</span><span class="tc-rev">(890)</span></div><div class="tc-price">$49.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b3">🎂<div class="tbadge bn">NEW</div><div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Birthday Surprise</div><div class="tc-meta"><div><span class="tc-stars">★★★★★</span><span class="tc-rev">(756)</span></div><div class="tc-price">$29.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b4">💕<div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Anniversary Memories</div><div class="tc-meta"><div><span class="tc-stars">★★★★★</span><span class="tc-rev">(643)</span></div><div class="tc-price">$39.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b5">🎬<div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Cinematic Love Story</div><div class="tc-meta"><div><span class="tc-stars">★★★★★</span><span class="tc-rev">(532)</span></div><div class="tc-price">$59.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b6">❓💕<div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Cute Love Questions</div><div class="tc-meta"><div><span class="tc-stars">★★★★☆</span><span class="tc-rev">(421)</span></div><div class="tc-price">$19.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b7">🌹<div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Valentine Special</div><div class="tc-meta"><div><span class="tc-stars">★★★★★</span><span class="tc-rev">(398)</span></div><div class="tc-price">$34.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b8">🎓<div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Graduation Surprise</div><div class="tc-meta"><div><span class="tc-stars">★★★★☆</span><span class="tc-rev">(287)</span></div><div class="tc-price">$24.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b9">👶<div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Baby Shower</div><div class="tc-meta"><div><span class="tc-stars">★★★★★</span><span class="tc-rev">(312)</span></div><div class="tc-price">$22.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b10">🌸<div class="tbadge bn">NEW</div><div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Mother's Day</div><div class="tc-meta"><div><span class="tc-stars">★★★★★</span><span class="tc-rev">(445)</span></div><div class="tc-price">$27.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b11">🎄<div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Christmas Wish</div><div class="tc-meta"><div><span class="tc-stars">★★★★☆</span><span class="tc-rev">(201)</span></div><div class="tc-price">$19.99</div></div></div></div>
+    <div class="tc"><div class="tc-thumb tc-b12">🕊<div class="tplay"><div class="tplay-btn">▶</div></div></div><div class="tc-info"><div class="tc-name">Memorial Tribute</div><div class="tc-meta"><div><span class="tc-stars">★★★★★</span><span class="tc-rev">(178)</span></div><div class="tc-price">$17.99</div></div></div></div>
+  </div>
+</div>
+
+<!-- ══ OCCASIONS ══ -->
+<div class="page" id="page-occasions">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Choose an <span>Occasion</span></h2>
+      <p style="font-size:13px;color:var(--text3);margin-top:4px">Every moment deserves a perfect digital surprise</p>
+    </div>
+  </div>
+  <div class="occ-grid">
+    <div class="occ active"><span class="occ-icon">❤️</span><div class="occ-name">Love Story</div></div>
+    <div class="occ"><span class="occ-icon">💍</span><div class="occ-name">Proposal</div></div>
+    <div class="occ"><span class="occ-icon">🎂</span><div class="occ-name">Birthday</div></div>
+    <div class="occ"><span class="occ-icon">💕</span><div class="occ-name">Anniversary</div></div>
+    <div class="occ"><span class="occ-icon">🌹</span><div class="occ-name">Valentine's Day</div></div>
+    <div class="occ"><span class="occ-icon">🎉</span><div class="occ-name">Congratulations</div></div>
+    <div class="occ"><span class="occ-icon">🙏</span><div class="occ-name">Thank You</div></div>
+    <div class="occ"><span class="occ-icon">🎁</span><div class="occ-name">Custom Event</div></div>
+    <div class="occ"><span class="occ-icon">🎄</span><div class="occ-name">Christmas</div></div>
+    <div class="occ"><span class="occ-icon">🎆</span><div class="occ-name">New Year</div></div>
+    <div class="occ"><span class="occ-icon">👩</span><div class="occ-name">Mother's Day</div></div>
+    <div class="occ"><span class="occ-icon">👨</span><div class="occ-name">Father's Day</div></div>
+    <div class="occ"><span class="occ-icon">🎓</span><div class="occ-name">Graduation</div></div>
+    <div class="occ"><span class="occ-icon">👶</span><div class="occ-name">Baby Shower</div></div>
+    <div class="occ"><span class="occ-icon">😢</span><div class="occ-name">Apology</div></div>
+    <div class="occ"><span class="occ-icon">💌</span><div class="occ-name">Love Letter</div></div>
+    <div class="occ"><span class="occ-icon">👋</span><div class="occ-name">Farewell</div></div>
+    <div class="occ"><span class="occ-icon">💖</span><div class="occ-name">Friendship</div></div>
+    <div class="occ"><span class="occ-icon">💍</span><div class="occ-name">Wedding</div></div>
+    <div class="occ"><span class="occ-icon">🎊</span><div class="occ-name">Party Invite</div></div>
+    <div class="occ"><span class="occ-icon">📅</span><div class="occ-name">Save the Date</div></div>
+    <div class="occ"><span class="occ-icon">🕊</span><div class="occ-name">Memorial</div></div>
+  </div>
+</div>
+
+<!-- ══ PRICING ══ -->
+<div class="page" id="page-pricing">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Simple <span>Pricing</span></h2>
+      <p style="font-size:13px;color:var(--text3);margin-top:4px">Transparent pricing. No hidden fees.</p>
+    </div>
+  </div>
+  <div class="pricing-grid">
+    <div class="pc">
+      <div class="pc-name">Basic</div>
+      <div class="pc-price-row"><div class="pc-price">$19.99</div><div class="pc-per">/project</div></div>
+      <div class="pc-desc">Perfect for simple surprises</div>
+      <ul class="pc-features">
+        <li>Standard Templates</li>
+        <li>48H Link Expiration</li>
+        <li>Basic Animations</li>
+        <li>720p Uploads</li>
+        <li>Email Support</li>
+      </ul>
+      <button class="pc-btn pc-btn-o">Get Started</button>
+    </div>
+    <div class="pc featured">
+      <div class="mp-badge">MOST POPULAR</div>
+      <div class="pc-name">Pro</div>
+      <div class="pc-price-row"><div class="pc-price">$39.99</div><div class="pc-per">/project</div></div>
+      <div class="pc-desc">Full AI-powered experience</div>
+      <ul class="pc-features">
+        <li>Premium Templates</li>
+        <li>48H Link Expiration</li>
+        <li>AI Personalization</li>
+        <li>HD Uploads</li>
+        <li>All Animations & Effects</li>
+        <li>Priority Support</li>
+      </ul>
+      <button class="pc-btn pc-btn-f">Get Started</button>
+    </div>
+    <div class="pc">
+      <div class="pc-name">Ultimate</div>
+      <div class="pc-price-row"><div class="pc-price">$79.99</div><div class="pc-per">/project</div></div>
+      <div class="pc-desc">The complete VIP package</div>
+      <ul class="pc-features">
+        <li>All Pro Features</li>
+        <li>Extended Expiration Options</li>
+        <li>AI Voice Narration</li>
+        <li>4K Uploads</li>
+        <li>Custom Domain</li>
+        <li>VIP Support</li>
+      </ul>
+      <button class="pc-btn pc-btn-o">Get Started</button>
+    </div>
+    <div class="gift-pc">
+      <div class="gift-pc-icon">🎁</div>
+      <div class="gift-pc-title">Need a Gift?</div>
+      <div class="gift-pc-desc">Surprise your loved ones with a digital experience they will never forget.</div>
+      <button class="gift-pc-btn">Gift Now 🎁</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GALLERY ══ -->
+<div class="page" id="page-gallery">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Experience <span>Gallery</span></h2>
+      <p style="font-size:13px;color:var(--text3);margin-top:4px">Real experiences created by our users</p>
+    </div>
+    <a href="#" class="view-all">View All →</a>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item gi1 big">💑<div class="gallery-overlay"><span class="gallery-label">💕 Romantic Love Story</span></div></div>
+    <div class="gallery-item gi2">💍<div class="gallery-overlay"><span class="gallery-label">💍 Proposal</span></div></div>
+    <div class="gallery-item gi3">🎂<div class="gallery-overlay"><span class="gallery-label">🎂 Birthday</span></div></div>
+    <div class="gallery-item gi4">🎓<div class="gallery-overlay"><span class="gallery-label">🎓 Graduation</span></div></div>
+    <div class="gallery-item gi5">🌹<div class="gallery-overlay"><span class="gallery-label">🌹 Valentine's</span></div></div>
+  </div>
+</div>
+
+<!-- ══ REVIEWS ══ -->
+<div class="page" id="page-reviews">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Customer <span>Reviews</span></h2>
+      <p style="font-size:13px;color:var(--text3);margin-top:4px">What our customers say about us</p>
+    </div>
+  </div>
+  <div class="reviews-grid">
+    <div class="rv-summary">
+      <div class="rv-big-num">4.9</div>
+      <div class="rv-big-stars">★★★★★</div>
+      <div class="rv-big-label">Based on 5,200+ reviews</div>
+    </div>
+    <div class="rv"><div class="rv-stars">★★★★★</div><div class="rv-quote">"It made her cry! The best birthday surprise ever. She replayed it 6 times!"</div><div class="rv-author"><div class="rv-av">👩</div><div><div class="rv-name">Sarah J.</div><div class="rv-role">Birthday · Verified</div></div></div></div>
+    <div class="rv"><div class="rv-stars">★★★★★</div><div class="rv-quote">"I proposed using GiftService and she said YES! The AI wrote the speech perfectly."</div><div class="rv-author"><div class="rv-av">👨</div><div><div class="rv-name">Michael T.</div><div class="rv-role">Proposal · Verified</div></div></div></div>
+    <div class="rv"><div class="rv-stars">★★★★★</div><div class="rv-quote">"The animations are so beautiful and the memories hit so deep. Worth every penny."</div><div class="rv-author"><div class="rv-av">👩</div><div><div class="rv-name">Emily R.</div><div class="rv-role">Anniversary · Verified</div></div></div></div>
+    <div class="rv"><div class="rv-stars">★★★★★</div><div class="rv-quote">"Super easy to use and worth every single penny! My mom was in tears."</div><div class="rv-author"><div class="rv-av">👨</div><div><div class="rv-name">Daniel K.</div><div class="rv-role">Mother's Day · Verified</div></div></div></div>
+    <div class="rv"><div class="rv-stars">★★★★★</div><div class="rv-quote">"I used the AI poem generator and my girlfriend couldn't believe I wrote it myself!"</div><div class="rv-author"><div class="rv-av">👩</div><div><div class="rv-name">Priya N.</div><div class="rv-role">Love Story · Verified</div></div></div></div>
+    <div class="rv"><div class="rv-stars">★★★★☆</div><div class="rv-quote">"Absolutely stunning product. The voice narration feature made everything so personal."</div><div class="rv-author"><div class="rv-av">👨</div><div><div class="rv-name">James L.</div><div class="rv-role">Valentine's · Verified</div></div></div></div>
+    <div class="rv"><div class="rv-stars">★★★★★</div><div class="rv-quote">"Created a graduation surprise for my sister. She shared it with everyone at the party!"</div><div class="rv-author"><div class="rv-av">👩</div><div><div class="rv-name">Aisha M.</div><div class="rv-role">Graduation · Verified</div></div></div></div>
+  </div>
+</div>
+
+<!-- ══ FAQ ══ -->
+<div class="page" id="page-faq">
+  <div class="faq-left">
+    <h2>Frequently Asked <span>Questions</span></h2>
+    <p>Can't find what you're looking for? Our support team is always ready to help you create the perfect surprise.</p>
+    <button class="faq-contact-btn" onclick="showPage('contact')">Contact Support →</button>
+  </div>
+  <div class="faq-right">
+    <div class="faq-item open">
+      <button class="faq-q">How long does it take to generate my experience? <span class="faq-icon">+</span></button>
+      <div class="faq-a">Most experiences are fully generated within 2–5 minutes after payment. The AI writes your content, enhances your photos, generates voice narration, and assembles everything automatically. You'll receive an email the moment it's ready.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">Does AI write everything for me? <span class="faq-icon">+</span></button>
+      <div class="faq-a">Yes. You just provide your photos, a few personal details, and the AI writes the love letter, poem, speech, or wishes — then builds and animates the full cinematic experience. No design or writing skill needed.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">Can the recipient tell it was AI-assisted? <span class="faq-icon">+</span></button>
+      <div class="faq-a">Only if you want them to. The AI uses your personal details and memories to write content that sounds completely personal. The emotions and stories you provide are yours — the AI just helps you express them beautifully.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">What happens when the link expires? <span class="faq-icon">+</span></button>
+      <div class="faq-a">You'll receive a notification 24 hours before expiration. You can extend the link from your dashboard at any time — even after it expires (within 30 days). Pro and Ultimate plans include extended expiration options.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">Is my content private and secure? <span class="faq-icon">+</span></button>
+      <div class="faq-a">Absolutely. All experiences are private by default. You can add password or OTP protection, restrict viewing by device or country, and all media is encrypted in transit and at rest. Your data is never shared.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">Can I edit the experience after sending? <span class="faq-icon">+</span></button>
+      <div class="faq-a">Yes. You can edit and regenerate your experience at any time from your dashboard. The recipient will see the updated version the next time they open the link.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTACT ══ -->
+<div class="page" id="page-contact">
+  <div class="contact-left">
+    <h2>Get in <span>Touch</span></h2>
+    <p>Have a question or need help creating the perfect surprise? We're here for you 24/7.</p>
+    <div class="contact-info">
+      <div class="ci"><div class="ci-icon">📧</div>hello@giftservice.com</div>
+      <div class="ci"><div class="ci-icon">📞</div>+1 (555) 123-4567</div>
+      <div class="ci"><div class="ci-icon">📍</div>New York, USA</div>
+      <div class="ci"><div class="ci-icon">⏰</div>24/7 Support Available</div>
+    </div>
+  </div>
+  <div class="contact-right">
+    <div class="cf-row">
+      <input class="cf-input" type="text" placeholder="Your Name">
+      <input class="cf-input" type="email" placeholder="Your Email">
+    </div>
+    <input class="cf-input" type="text" placeholder="Subject" style="margin-bottom:14px;display:block">
+    <textarea class="cf-textarea" rows="5" placeholder="Your message..."></textarea>
+    <button class="cf-submit">Send Message ✈</button>
+  </div>
+</div>
+
+<script>
+// ── BACKGROUND ──
+(function(){
+  const c=document.getElementById('bg'),ctx=c.getContext('2d');
+  let W,H,t=0;
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  const orbs=[
+    {x:.2,y:.4,r:.38,col:'rgba(155,39,175,',s:.0004},
+    {x:.8,y:.25,r:.32,col:'rgba(255,45,120,',s:.0003},
+    {x:.5,y:.75,r:.28,col:'rgba(200,80,192,',s:.0005},
+  ];
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    orbs.forEach(o=>{
+      const x=(o.x+Math.sin(t*o.s)*0.14)*W;
+      const y=(o.y+Math.cos(t*o.s)*0.1)*H;
+      const r=o.r*Math.min(W,H);
+      const g=ctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,o.col+'0.13)');g.addColorStop(1,o.col+'0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+    });
+    t++;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── HEARTS ──
+(function(){
+  const hw=document.getElementById('hw');
+  const em=['💕','❤️','💖','💗','✨','🌸','💓','💝'];
+  function spawn(){
+    const h=document.createElement('div');
+    h.className='fh';h.textContent=em[Math.floor(Math.random()*em.length)];
+    h.style.left=Math.random()*100+'vw';
+    h.style.animationDuration=(10+Math.random()*14)+'s';
+    h.style.animationDelay=(Math.random()*4)+'s';
+    h.style.fontSize=(9+Math.random()*12)+'px';
+    hw.appendChild(h);setTimeout(()=>h.remove(),22000);
+  }
+  for(let i=0;i<10;i++)setTimeout(spawn,i*700);
+  setInterval(spawn,2200);
+})();
+
+// ── PAGE SWITCHING ──
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tabs a').forEach(a=>a.classList.remove('active'));
+  const page=document.getElementById('page-'+id);
+  if(page)page.classList.add('active');
+  const tab=document.querySelector('[data-page="'+id+'"]');
+  if(tab)tab.classList.add('active');
+}
+
+document.querySelectorAll('.nav-tabs a').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    showPage(a.dataset.page);
+  });
+});
+
+// ── FILTER BUTTONS ──
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    btn.closest('.filter-row').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ── OCCASIONS ──
+document.querySelectorAll('.occ').forEach(o=>{
+  o.addEventListener('click',()=>{
+    document.querySelectorAll('.occ').forEach(x=>x.classList.remove('active'));
+    o.classList.add('active');
+  });
+});
+
+// ── FAQ ──
+document.querySelectorAll('.faq-q').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item=btn.parentElement;
+    const isOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!isOpen)item.classList.add('open');
+  });
+});
+</script>
+</body>
+</html>
