@@ -15,6 +15,7 @@ const analyticsRoutes = require('./routes/analytics');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
+app.set('trust proxy', 1);
 
 // ── DATABASE ──
 connectDB();
@@ -28,13 +29,13 @@ app.use('/api', limiter);
 
 // Stripe webhook needs the RAW body, so it must be mounted before express.json()
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
-app.use('/api/payments', paymentRoutes);
 
-// Everything else uses JSON body parsing
+// JSON parsing for everything else — must come BEFORE routes that read req.body
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ── ROUTES ──
+app.use('/api/payments', paymentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/templates', templateRoutes);
